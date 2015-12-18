@@ -13,7 +13,7 @@ for img in $*; do
     # Get the 'last' profile of the imageinfo output
     profile=$(
             volatility -f ${img} --output json imageinfo |
-            transformJSON |
+            transformJSON imageinfo |
             jq '."Suggested Profile(s)" | 
                     split(", ")[] |
                     split(" ") | .[0]' |
@@ -21,12 +21,13 @@ for img in $*; do
             tr -d '"'
         )
     echo "analyzing: ${img} with profile: ${profile}"
+
     for out in ${OUTPUT}; do
         dir="${img}-out"
         mkdir -p "${dir}"
-        for p in ${PLUGINS}; do
+        for plugin in ${PLUGINS}; do
             (
-            volatility -f "${img}" --profile "${profile}" --output "${out}" "${p}" > "${dir}/${p}.${out}"
+            volatility -f "${img}" --profile "${profile}" --output "${out}" "${plugin}" > "${dir}/${plugin}.${out}"
             ) &
         done
     done
